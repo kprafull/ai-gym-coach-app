@@ -5,6 +5,7 @@ from components import sidebar as sidebar_component
 from data import load_data
 from services.auth.login_wall import render_login_wall
 from services.states.session_defaults import initial_session_defaults
+from services.persistence.cache import get_repo
 
 def main() -> None:
     st.set_page_config(
@@ -18,6 +19,9 @@ def main() -> None:
         return  # Stop further execution if the login wall is shown
 
     initial_session_defaults()
+
+    repo = get_repo()
+    print("User data:", repo.create_user("user_123", "hashedpassword123"))
 
     sidebar_component.render()
 
