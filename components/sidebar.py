@@ -11,14 +11,16 @@ def render() -> None:
 
         if not workout_started:
             st.markdown("### Workout Plan")
-            exercise = st.selectbox("Choose exercise", EXERCISE_OPTIONS)
-            st.number_input("Target sets", min_value=1, max_value=10, value=3, step=1, key="plan_sets")
-            st.number_input("Reps per set", min_value=1, max_value=50, value=10, step=1, key="plan_reps")
+            plan_exercise = st.selectbox("Choose exercise", EXERCISE_OPTIONS)
+            plan_sets = st.number_input("Target sets", min_value=1, max_value=10, value=3, step=1, key="plan_sets")
+            plan_reps = st.number_input("Reps per set", min_value=1, max_value=50, value=10, step=1, key="plan_reps")
             start_workout_button = st.button("Start Workout", key="start_workout", width="stretch")
             if start_workout_button:
-                st.session_state["plan_exercise"] = exercise
+                st.session_state["plan_exercise"] = plan_exercise
+                st.session_state["sets"] = plan_sets
+                st.session_state["reps"] = plan_reps
                 st.session_state["workout_started"] = True
-                st.success(f"Started {exercise} workout plan!")
+                st.success(f"Started {plan_exercise} workout plan!")
                 st.rerun()  # Rerun to update the session state and show the main content
         else:
             st.markdown("### Workout in Progress")

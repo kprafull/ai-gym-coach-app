@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 from streamlit_webrtc import webrtc_streamer, WebRtcMode
+from vision.exercise_video_processor import ExerciseVideoProcessor
 
 def render(data: pd.DataFrame) -> None:
     st.title("🏋️‍♀️ Welcome to AI Gym Coach")
@@ -30,15 +31,15 @@ def render(data: pd.DataFrame) -> None:
         )
     else:
         context = webrtc_streamer(
-        key="exercise-analysis",
-        mode=WebRtcMode.SENDRECV,
-        video_processor_factory=None,
-        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-        media_stream_constraints={
-            "video": True,
-            "audio": False
-        },
-        async_processing=True
+            key="exercise-analysis",
+            mode=WebRtcMode.SENDRECV,
+            video_processor_factory=ExerciseVideoProcessor,
+            rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
+            media_stream_constraints={
+                "video": True,
+                "audio": False
+            },
+            async_processing=True
     )
  
     st.markdown("#### Workout History")

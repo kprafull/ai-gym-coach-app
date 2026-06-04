@@ -14,6 +14,9 @@ class SquatDetector(BaseExercise):
         super().__init__()
 
     def process(self, landmarks):
+        if not landmarks:
+            return None
+        
         left_vis = landmarks[self.LEFT_KNEE].visibility # left knee visibility
         right_vis = landmarks[self.RIGHT_KNEE].visibility # right knee visibility
 
@@ -40,7 +43,7 @@ class SquatDetector(BaseExercise):
 
         key_landmkars_visible = all(landmarks[idx].visibility > 0.7 for idx in [hip_idx, knee_idx, ankle_idx, shoulder_idx])
         if key_landmkars_visible:
-            if knee_angle < 100 and self.stage == "up":
+            if knee_angle < 100:
                 self.stage = "down"
 
             if knee_angle > 160 and self.stage == "down":
@@ -65,7 +68,7 @@ class SquatDetector(BaseExercise):
                 "back_angle": back_angle,
                 "depth_status": self.depth_status
             }
-            
+
     def reset(self):
         self.reps = 0
         self.stage = None
