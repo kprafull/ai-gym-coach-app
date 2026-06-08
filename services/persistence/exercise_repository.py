@@ -1,11 +1,6 @@
 import sqlite3
 import os
-from datetime import datetime
-from turtle import st
 from typing import List, Optional, Dict, Any
-import streamlit as st
-from streamlit import cursor
-
 
 class ExerciseRepository:
     """Repository for managing exercise data persistence using SQLite."""
