@@ -58,8 +58,8 @@ def render() -> None:
         if context and context.state.playing:
             st.markdown("#### Exercise Analysis")
             st.info("Camera is active. Perform your exercise in view of the camera for real-time feedback and metrics.")
-            time.sleep(0.25)
-            st.rerun()  # Trigger a rerun to update the UI with the latest metrics
+            # time.sleep(0.25)
+            # st.rerun()  # Trigger a rerun to update the UI with the latest metrics
 
     st.divider()
     st.markdown("#### Workout History")
