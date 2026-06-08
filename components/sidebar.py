@@ -1,6 +1,7 @@
+import time
+
 import streamlit as st
 from services.config.workout_config import EXERCISE_OPTIONS
-
 
 def render() -> None:
     with st.sidebar:
@@ -12,14 +13,44 @@ def render() -> None:
         if not workout_started:
             st.markdown("### Workout Plan")
             plan_exercise = st.selectbox("Choose exercise", EXERCISE_OPTIONS)
-            plan_sets = st.number_input("Target sets", min_value=1, max_value=10, value=3, step=1, key="plan_sets")
-            plan_reps = st.number_input("Reps per set", min_value=1, max_value=50, value=10, step=1, key="plan_reps")
+            selected_plan_sets = st.number_input(
+                "Target sets",
+                min_value=1,
+                max_value=10,
+                value=st.session_state.get("plan_sets", 3),
+                step=1,
+                key="selected_plan_sets",
+            )
+            selected_plan_reps = st.number_input(
+                "Reps per set",
+                min_value=1,
+                max_value=50,
+                value=st.session_state.get("plan_reps", 10),
+                step=1,
+                key="selected_plan_reps",
+            )
             start_workout_button = st.button("Start Workout", key="start_workout", width="stretch")
             if start_workout_button:
                 st.session_state["plan_exercise"] = plan_exercise
-                st.session_state["sets"] = plan_sets
-                st.session_state["reps"] = plan_reps
+                st.session_state["current_set_reps"] = 0
+                st.session_state["sets_completed"] = 0
+                st.session_state["reps"] = 0
+                st.session_state["plan_sets"]=selected_plan_sets
+                st.session_state["plan_reps"]=selected_plan_reps
                 st.session_state["workout_started"] = True
+                st.session_state["set_cycle_start_time"] = time.time()
+                st.session_state["last_saved_set_completed_at"] = 0
+
+                if st.session_state.voice_pipeline:
+                    result = st.session_state.voice_pipeline.process_event(
+                        event="workout_started",
+                        exercise=plan_exercise,
+                        metrics={}
+                    )
+
+                    if result:
+                        st.session_state.audio_to_play, st.session_state.coach_feedback = result
+
                 st.success(f"Started {plan_exercise} workout plan!")
                 st.rerun()  # Rerun to update the session state and show the main content
         else:
@@ -33,6 +64,16 @@ def render() -> None:
             if stop_workout_button:
                 st.session_state["workout_started"] = False
                 st.success("Workout stopped. Great job!")
+
+                if st.session_state.voice_pipeline:
+                    result = st.session_state.voice_pipeline.process_event(
+                        event="workout_completed",
+                        exercise=exercise,
+                        metrics={}
+                    )
+                    if result:
+                        st.session_state.audio_to_play, st.session_state.coach_feedback = result
+
                 st.rerun()  # Rerun to update the session state and show the main content
 
             # Display real-time metrics
@@ -94,3 +135,26 @@ def render() -> None:
                     if depth_angle != 0:
                         depth_progress = min(depth_angle / 100, 1.0)
                         st.progress(depth_progress)
+            elif exercise == "Shoulder Press":
+                st.subheader("Shoulder Press Metrics")
+                
+                elbow_angle = st.session_state.elbow_angle
+                extension_status = st.session_state.extension_status
+                back_arch_status = st.session_state.back_arch_status
+                
+                col1, col2 = st.columns([1, 1.5])
+                
+                with col1:
+                    st.metric("Elbow", f"{elbow_angle}°")
+                    st.caption("Arm extension")
+                    if elbow_angle != 0:
+                        elbow_progress = min(elbow_angle / 180, 1.0)
+                        st.progress(elbow_progress)
+                
+                with col2:
+                    st.markdown("**Extension**")
+                    st.write(extension_status)
+                    st.caption("Press stage")
+                    st.markdown("**Back Arch**")
+                    st.write(back_arch_status)
+                    st.caption("Spine alignment")

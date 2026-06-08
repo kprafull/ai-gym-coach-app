@@ -7,7 +7,13 @@ import mediapipe as mp
 from streamlit_webrtc import VideoProcessorBase
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+from detectors.shoulder_press import ShoulderPressDetector
 from detectors.squat import SquatDetector
+from detectors.biceps_curl import BicepsCurlDetector
+from detectors.lunges import LungesDetector
+from detectors.pushup import PushUpDetector
+from detectors.shoulder_press import ShoulderPressDetector
+
 from services.config.workout_config import POSE_CONNECTIONS
 
 class ExerciseVideoProcessor(VideoProcessorBase):
@@ -31,6 +37,10 @@ class ExerciseVideoProcessor(VideoProcessorBase):
         self._landmarker = vision.PoseLandmarker.create_from_options(vision_options)
         self._exercise_detector = {
             "Squats": SquatDetector(),
+            "Shoulder Press": ShoulderPressDetector(),
+            "Push-ups": PushUpDetector(),
+            "Biceps Curls (Dumbbell)": BicepsCurlDetector(),
+            "Lunges": LungesDetector(),
             # Future exercise types can be added here with their respective detectors
         }  # Will be initialized based on selected exercise type
 
@@ -67,7 +77,6 @@ class ExerciseVideoProcessor(VideoProcessorBase):
                 self._draw_no_pose_warnings(image)
 
 
-        
         return av.VideoFrame.from_ndarray(image, format="bgr24")
 
     def set_latest_metrics(self, metrics):
@@ -121,7 +130,7 @@ class ExerciseVideoProcessor(VideoProcessorBase):
             (20, h - 20),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,
-            (0, 255, 0),
+            (0, 0, 255),
             2,
         )
 

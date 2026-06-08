@@ -12,6 +12,7 @@ class SquatDetector(BaseExercise):
 
     def __init__(self):
         super().__init__()
+        self.stage = "up"  # Initial stage is standing
 
     def process(self, landmarks):
         if not landmarks:
@@ -20,7 +21,16 @@ class SquatDetector(BaseExercise):
         left_vis = landmarks[self.LEFT_KNEE].visibility # left knee visibility
         right_vis = landmarks[self.RIGHT_KNEE].visibility # right knee visibility
 
-        if left_vis <= right_vis:
+        if left_vis <= 0.7 and right_vis <= 0.7:
+            self.depth_status = "No Detection"
+            return {
+                "reps": self.reps,
+                "knee_angle": 0,
+                "back_angle": 0,
+                "depth_status": self.depth_status
+            }
+
+        if right_vis <= left_vis:
             knee_angle = int(self.get_angle(
                 self.get_point(landmarks, self.LEFT_HIP),
                 self.get_point(landmarks, self.LEFT_KNEE),
@@ -42,12 +52,15 @@ class SquatDetector(BaseExercise):
         ))
 
         key_landmkars_visible = all(landmarks[idx].visibility > 0.7 for idx in [hip_idx, knee_idx, ankle_idx, shoulder_idx])
-        if key_landmkars_visible:
-            if knee_angle < 100:
+        if not key_landmkars_visible:
+            self.depth_status = "No Detection"
+        else:
+            if knee_angle < 120 and self.stage == "up": #Moved from 100 to 120 for testing
                 self.stage = "down"
 
-            if knee_angle > 160 and self.stage == "down":
+            if knee_angle > 150 and self.stage == "down":
                 self.stage = "up"
+                print("====>>>> Rep completed!", self.reps+1)
                 self.reps += 1
 
             if self.stage == "down":
@@ -62,12 +75,12 @@ class SquatDetector(BaseExercise):
             else:       
                 self.depth_status = "No Detection"
 
-            return {
-                "reps": self.reps,
-                "knee_angle": knee_angle,
-                "back_angle": back_angle,
-                "depth_status": self.depth_status
-            }
+        return {
+            "reps": self.reps,
+            "knee_angle": knee_angle,
+            "back_angle": back_angle,
+            "depth_status": self.depth_status
+        }
 
     def reset(self):
         self.reps = 0

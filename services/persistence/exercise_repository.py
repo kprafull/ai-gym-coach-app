@@ -62,10 +62,9 @@ class ExerciseRepository:
                 AND Date(created_at) = Date('now')""",
                 (user_id, exercise_name)
             ).fetchone()
-            exercise_id = existing["id"]
 
             if existing:
-                print(f"Exercise '{exercise_name}' already exists for user {user_id} today.")
+                exercise_id = existing["id"]
                 conn.execute(
                     "UPDATE exercises SET reps = reps + ?, sets = sets + ?, time = time + ? WHERE id = ?",
                     (reps, sets, time, existing["id"])
@@ -96,10 +95,9 @@ class ExerciseRepository:
         conn = self._get_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT * FROM exercises WHERE user_id = ?", (user_id,))
+        cursor.execute("SELECT exercise_name, reps, sets, time, created_at FROM exercises WHERE user_id = ?", (user_id,))
         exercises = [dict(row) for row in cursor.fetchall()]
         conn.close()
-        
         return exercises
     
     def get_user(self, username: str) -> Optional[Dict[str, Any]]:
@@ -109,7 +107,6 @@ class ExerciseRepository:
         with conn:        
             res = conn.execute("SELECT * FROM users WHERE username = ?", (username,))
             result = res.fetchone()
-            print(f"get_user('{username}') returned: {result}")
         return dict(result) if result else None
     
     def create_user(self, username: str, hashed_password: str) -> int:

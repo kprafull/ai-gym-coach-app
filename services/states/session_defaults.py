@@ -18,8 +18,8 @@ def initial_session_defaults():
         # Workout plan (set before starting)
         "workout_started": False,
         "plan_exercise": "Squats",
-        "plan_sets": 3,
-        "plan_reps": 10,
+        #"plan_sets": 3,
+        #"plan_reps": 10,
 
         # Common Angles
         "knee_angle": 0,

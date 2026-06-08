@@ -32,3 +32,6 @@ class BaseExercise(ABC):
         angle = math.degrees(math.acos(cos_angle))
 
         return angle
+    
+    def calculate_angle(self, a, b, c):
+        return self.get_angle(a, b, c)
