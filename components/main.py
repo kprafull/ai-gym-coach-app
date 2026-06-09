@@ -41,16 +41,34 @@ def render() -> None:
             unsafe_allow_html=True,
         )
     else:
+        RTC_CONFIGURATION = {
+            "iceServers": [
+                # Multiple STUN servers for fallback
+                {"urls": ["stun:stun.l.google.com:19302"]},
+                {"urls": ["stun:stun1.l.google.com:19302"]},
+                {"urls": ["stun:stun2.l.google.com:19302"]},
+                {"urls": ["stun:stun.relay.metered.ca:80"]},
+                # Free TURN server from Open Relay Project
+                {
+                    "urls": [
+                        "turn:openrelayproject.org:80",
+                        "turn:openrelayproject.org:443",
+                        "turns:openrelayproject.org:443"
+                    ],
+                    "username": "openrelayproject",
+                    "credential": "openrelayproject",
+                },
+            ],
+            "iceTransportPolicy": "all",  # Try both STUN and TURN
+        }
+
         context = webrtc_streamer(
             key="exercise-analysis",
             mode=WebRtcMode.SENDRECV,
             video_processor_factory=ExerciseVideoProcessor,
-            rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-            media_stream_constraints={
-                "video": True,
-                "audio": False
-            },
-            async_processing=True
+            rtc_configuration=RTC_CONFIGURATION,
+            media_stream_constraints={"video": True, "audio": False},
+            async_processing=True,
         )
         
         sync_metrics_to_session(context)
