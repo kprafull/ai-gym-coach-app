@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 import time
-from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
+from streamlit_webrtc import webrtc_streamer, WebRtcMode
 from vision.exercise_video_processor import ExerciseVideoProcessor
 from services.tracking.metrics import sync_metrics_to_session
 from services.persistence.cache import get_repo
@@ -41,33 +41,17 @@ def render() -> None:
             unsafe_allow_html=True,
         )
     else:
-        # 1. Define the robust cloud-ready connection configuration
-        RTC_CONFIG = RTCConfiguration(
-            {
-                "iceServers": [
-                    {"urls": ["stun:stun.l.google.com:19302"]},  # Standard STUN
-                    {
-                        # Secure Twilio TURN relay server to bypass cloud firewalls
-                        "urls": ["turn:://twilio.com"],
-                        "username": "2.0.0-twilio-developer-edition",
-                        "credential": "9e81d77c4424beee7fe909dc88df9f68805f1eb0dbdcd4f5ccb9826f0438be23",
-                    }
-                ]
-            }
-        )
-
-        # 2. Initialize the stream using the configuration object
         context = webrtc_streamer(
             key="exercise-analysis",
             mode=WebRtcMode.SENDRECV,
             video_processor_factory=ExerciseVideoProcessor,
-            rtc_configuration=RTC_CONFIG,  # Clean reference to the configuration object
+            rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
             media_stream_constraints={
                 "video": True,
                 "audio": False
             },
             async_processing=True
-        )   
+        )
         
         sync_metrics_to_session(context)
 
