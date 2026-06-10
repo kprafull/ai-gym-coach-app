@@ -2,6 +2,10 @@
 
 A Streamlit-based workout assistant that combines live pose detection, a workout planner, session logging, and optional AI voice coaching.
 
+## Screenshot
+
+![AI Gym Coach Screenshot](media/ai-gym-coach-screenshot.png)
+
 ## Features
 
 - User login and session persistence via SQLite
